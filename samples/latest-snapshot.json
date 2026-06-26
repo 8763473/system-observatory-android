@@ -1,0 +1,90 @@
+{
+  "diannaomingcheng": "DESKTOP-OBSERVE",
+  "zhimingcheng": "Windows 11",
+  "neihe": "X64",
+  "yunxingshijianmiao": 86400,
+  "zonggonghaowazhi": 182.5,
+  "zonggonghaogusuan": true,
+  "chuliqi3": {
+    "xinghao2": "Intel Core i7-12700K",
+    "hexin2": 12,
+    "xiancheng": 20,
+    "shiyonglvbaifenbi": 18.4,
+    "zhipinlv": 2300,
+    "wenduzhi": 54,
+    "gonghaowazhi": 46,
+    "gonghaogusuan": false
+  },
+  "neicun": {
+    "zongliangzhi3": 33554432,
+    "yiyongzhi": 19496960,
+    "shengyuzhi": 14057472,
+    "keyongzhi3": 14057472,
+    "shiyonglvbaifenbi2": 58.1
+  },
+  "cipan2": [
+    {
+      "cipanmingcheng": "C: SSD",
+      "shebei2": "C:\\",
+      "zhileixing": "NTFS",
+      "zongliangzhi4": 1073741824,
+      "yiyongzhi2": 721420288,
+      "shengyuzhi2": 352321536,
+      "shiyonglvbaifenbi3": 67.2
+    }
+  ],
+  "xianqia7": [
+    {
+      "xinghao3": "NVIDIA GeForce RTX 3060",
+      "wenduzhi2": 45,
+      "shiyonglvbaifenbi4": 26,
+      "hexinpinlv": 1740,
+      "neicunpinlv": 7000,
+      "fengshanbaifenbi": 0,
+      "zhizongliangzhi": 12582912,
+      "zhiyiyongzhi": 2684354,
+      "gonghaowazhi": 92,
+      "gonghaogusuan": false
+    }
+  ],
+  "fengshan3": [],
+  "wangluo": [
+    {
+      "mingcheng10": "以太网",
+      "xiazaizijie2": 123456789,
+      "shangchuanzijie2": 22334455,
+      "xiazaisudu2": 4075000,
+      "shangchuansudu2": 1050000
+    }
+  ],
+  "tokenjiankong": {
+    "peizhiwanzheng": true,
+    "yunxing": true,
+    "houtaicaijiqiyunxing": true,
+    "zhuangtai": "后台采集中",
+    "tongjiriqi": "2026-06-13",
+    "moxingmingcheng": "gpt-5",
+    "shurutokens": 128000,
+    "shuchutokens": 4200,
+    "jinrishurutokens": 2521774,
+    "jinrishuchutokens": 39334,
+    "jinritokens": 2561108,
+    "leijitokens": 31951524,
+    "fengzhitokens": 10956745,
+    "dangqianlianxutianshu": 5,
+    "zuichanglianxutianshu": 5,
+    "zhunquesudu": 28.4,
+    "shishitokensudu": 31.1,
+    "zonghaoshi": 188.5,
+    "shouziziyanmiao": 1.2,
+    "shouziziyangusuan": false,
+    "gengxinshijian": "2026-06-13T14:00:00Z",
+    "huodongriqi": [
+      { "riqi": "2026-06-09", "shurutokens": 4518130, "shuchutokens": 134065, "zongtokens": 4652195, "zuichangrenwumiao": 590.91 },
+      { "riqi": "2026-06-10", "shurutokens": 5827171, "shuchutokens": 71739, "zongtokens": 5898910, "zuichangrenwumiao": 788.753 },
+      { "riqi": "2026-06-11", "shurutokens": 7388343, "shuchutokens": 260123, "zongtokens": 7648466, "zuichangrenwumiao": 1578.707 },
+      { "riqi": "2026-06-12", "shurutokens": 10857686, "shuchutokens": 99059, "zongtokens": 10956745, "zuichangrenwumiao": 1524.552 },
+      { "riqi": "2026-06-13", "shurutokens": 2521774, "shuchutokens": 39334, "zongtokens": 2561108, "zuichangrenwumiao": 17718.512 }
+    ]
+  }
+}

@@ -115,6 +115,7 @@ public final class MainActivity extends Activity {
     private boolean resumed;
     private boolean loading;
     private boolean wsConnected;
+    private UpdateChecker updateChecker;
     private MobileScreen currentScreen = MobileScreen.OVERVIEW;
     private TokenHeatmapMode tokenHeatmapMode = TokenHeatmapMode.DAILY;
     private String relayUrl = "";
@@ -182,6 +183,7 @@ public final class MainActivity extends Activity {
         configureWindowForSoftTheme();
         executor = Executors.newSingleThreadExecutor();
         loadConnection();
+        checkForUpdates();
         navigateTo(MobileScreen.OVERVIEW);
     }
 
@@ -208,6 +210,7 @@ public final class MainActivity extends Activity {
         handler.removeCallbacks(refreshRunnable);
         handler.removeCallbacks(httpFallbackRunnable);
         disconnectWebSocket();
+        if (updateChecker != null) updateChecker.destroy();
         executor.shutdownNow();
         super.onDestroy();
     }
@@ -1074,6 +1077,49 @@ public final class MainActivity extends Activity {
             connectWebSocket();
         }
         updateUi();
+    }
+
+    private void checkForUpdates() {
+        updateChecker = new UpdateChecker(this, new UpdateChecker.Callback() {
+            @Override
+            public void onUpdateAvailable(String newVersion, String body) {
+                new AlertDialog.Builder(MainActivity.this)
+                        .setTitle("发现新版本 v" + newVersion)
+                        .setMessage(body != null && !body.isEmpty()
+                                ? body.substring(0, Math.min(body.length(), 200))
+                                : "是否更新到最新版本？")
+                        .setPositiveButton("立即更新", (dialog, which) -> {
+                            String url = "https://github.com/8763473/system-observatory-android/releases/download/v"
+                                    + newVersion + "/app-debug.apk";
+                            updateChecker.startDownload(url);
+                            showToast("正在下载更新...");
+                        })
+                        .setNegativeButton("跳过此版本", (dialog, which) ->
+                                updateChecker.skipVersion(newVersion))
+                        .setNeutralButton("稍后", null)
+                        .show();
+            }
+
+            @Override
+            public void onNoUpdate() {}
+
+            @Override
+            public void onDownloadComplete(File apkFile) {
+                new AlertDialog.Builder(MainActivity.this)
+                        .setTitle("下载完成")
+                        .setMessage("更新包已下载，是否立即安装？")
+                        .setPositiveButton("安装", (dialog, which) ->
+                                updateChecker.installApk(apkFile))
+                        .setNegativeButton("稍后", null)
+                        .show();
+            }
+
+            @Override
+            public void onError(String message) {
+                showToast("更新检测失败: " + message);
+            }
+        });
+        updateChecker.check();
     }
 
     private TextView sectionTitle(String text) {

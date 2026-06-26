@@ -65,6 +65,7 @@ public final class UpdateChecker {
                 conn.setConnectTimeout(10000);
                 conn.setReadTimeout(10000);
                 conn.setRequestProperty("Accept", "application/vnd.github.v3+json");
+                conn.setRequestProperty("User-Agent", "SystemObservatory-Android");
                 int code = conn.getResponseCode();
                 if (code != 200) {
                     post(() -> callback.onError("HTTP " + code));

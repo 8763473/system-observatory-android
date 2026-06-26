@@ -183,7 +183,7 @@ public final class MainActivity extends Activity {
         configureWindowForSoftTheme();
         executor = Executors.newSingleThreadExecutor();
         loadConnection();
-        checkForUpdates();
+        checkForUpdates(false);
         navigateTo(MobileScreen.OVERVIEW);
     }
 
@@ -540,6 +540,22 @@ public final class MainActivity extends Activity {
         helpButton.setOnClickListener(v -> showHelpDialog());
         helpCard.addView(helpButton, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(46)));
         content.addView(helpCard);
+        content.addView(spacer(14));
+
+        LinearLayout updateCard = card(SURFACE, dp(16));
+        updateCard.addView(text("关于与更新", 20, TEXT_PRIMARY, Typeface.BOLD));
+        String verName = "0.0.0";
+        try { verName = getPackageManager().getPackageInfo(getPackageName(), 0).versionName; } catch (Exception ignored) {}
+        TextView versionText = text("当前版本 v" + verName, 15, TEXT_MUTED, Typeface.NORMAL);
+        versionText.setPadding(0, dp(10), 0, dp(14));
+        updateCard.addView(versionText);
+        Button updateButton = pageButton("检查更新", PRIMARY, Color.WHITE);
+        updateButton.setOnClickListener(v -> {
+            checkForUpdates(true);
+            showToast("正在检查更新...");
+        });
+        updateCard.addView(updateButton, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(46)));
+        content.addView(updateCard);
 
         return root;
     }
@@ -1079,7 +1095,7 @@ public final class MainActivity extends Activity {
         updateUi();
     }
 
-    private void checkForUpdates() {
+    private void checkForUpdates(boolean manualCheck) {
         updateChecker = new UpdateChecker(this, new UpdateChecker.Callback() {
             @Override
             public void onUpdateAvailable(String newVersion, String body) {
@@ -1101,7 +1117,16 @@ public final class MainActivity extends Activity {
             }
 
             @Override
-            public void onNoUpdate() {}
+            public void onNoUpdate() {
+                if (manualCheck) {
+                    try {
+                        String v = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+                        showToast("已是最新版本 v" + v);
+                    } catch (Exception e) {
+                        showToast("已是最新版本");
+                    }
+                }
+            }
 
             @Override
             public void onDownloadComplete(File apkFile) {

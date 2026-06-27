@@ -1,10 +1,7 @@
 package com.systemobservatory.mobile;
 
-import android.app.DownloadManager;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -19,6 +16,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -32,13 +30,15 @@ public final class UpdateChecker {
     private final Context context;
     private final String currentVersion;
     private final SharedPreferences prefs;
-    private long downloadId = -1;
     private Callback callback;
     private String latestDownloadUrl;
+    private boolean downloading;
 
     public interface Callback {
         void onUpdateAvailable(String newVersion, String body, String downloadUrl);
         void onNoUpdate();
+        void onDownloadStart();
+        void onDownloadProgress(int percent);
         void onDownloadComplete(File apkFile);
         void onError(String message);
     }
@@ -128,26 +128,67 @@ public final class UpdateChecker {
         }).start();
     }
 
-    public void startDownload(String downloadUrl) {
-        if (downloadUrl == null || downloadUrl.isEmpty()) {
-            downloadUrl = latestDownloadUrl;
-        }
-        File dir = new File(context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), UPDATE_PATH);
-        if (!dir.exists()) dir.mkdirs();
-        File apkFile = new File(dir, "系统观测台.apk");
-        if (apkFile.exists()) apkFile.delete();
+    public void startDownload() {
+        if (downloading) return;
+        String url = latestDownloadUrl;
+        if (url == null || url.isEmpty()) return;
 
-        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(downloadUrl));
-        request.setTitle("系统观测台更新");
-        request.setDescription("正在下载新版本...");
-        request.setDestinationUri(Uri.fromFile(apkFile));
-        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-        request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI | DownloadManager.Request.NETWORK_MOBILE);
+        downloading = true;
+        post(() -> callback.onDownloadStart());
 
-        DownloadManager manager = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
-        downloadId = manager.enqueue(request);
+        new Thread(() -> {
+            File apkFile = null;
+            try {
+                File dir = new File(context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), UPDATE_PATH);
+                if (!dir.exists()) dir.mkdirs();
+                apkFile = new File(dir, "系统观测台.apk");
+                if (apkFile.exists()) apkFile.delete();
 
-        context.registerReceiver(downloadReceiver, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
+                HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
+                conn.setConnectTimeout(15000);
+                conn.setReadTimeout(60000);
+                conn.setRequestProperty("User-Agent", "SystemObservatory-Android");
+                conn.connect();
+
+                int total = conn.getContentLength();
+                InputStream in = conn.getInputStream();
+                FileOutputStream out = new FileOutputStream(apkFile);
+                byte[] buf = new byte[8192];
+                int read;
+                int downloaded = 0;
+                int lastPercent = -1;
+                while ((read = in.read(buf)) != -1) {
+                    out.write(buf, 0, read);
+                    downloaded += read;
+                    if (total > 0) {
+                        int pct = downloaded * 100 / total;
+                        if (pct != lastPercent) {
+                            lastPercent = pct;
+                            int finalPct = pct;
+                            post(() -> callback.onDownloadProgress(finalPct));
+                        }
+                    }
+                }
+                out.close();
+                in.close();
+                conn.disconnect();
+
+                if (apkFile.exists() && apkFile.length() > 0) {
+                    File finalApk = apkFile;
+                    post(() -> {
+                        callback.onDownloadComplete(finalApk);
+                        installApk(finalApk);
+                    });
+                } else {
+                    post(() -> callback.onError("下载失败"));
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "Download failed: " + e.getMessage());
+                post(() -> callback.onError("下载失败: " + e.getMessage()));
+                if (apkFile != null) apkFile.delete();
+            }
+            downloading = false;
+        }).start();
     }
 
     public void skipVersion(String version) {
@@ -169,25 +210,8 @@ public final class UpdateChecker {
         context.startActivity(intent);
     }
 
-    private final BroadcastReceiver downloadReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context c, Intent intent) {
-            long id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
-            if (id != downloadId) return;
-            context.unregisterReceiver(this);
-
-            File dir = new File(context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), UPDATE_PATH);
-            File apkFile = new File(dir, "系统观测台.apk");
-            if (apkFile.exists() && apkFile.length() > 0) {
-                post(() -> callback.onDownloadComplete(apkFile));
-            } else {
-                post(() -> callback.onError("下载失败，请稍后重试"));
-            }
-        }
-    };
-
     public void destroy() {
-        try { context.unregisterReceiver(downloadReceiver); } catch (Exception ignored) {}
+        callback = null;
     }
 
     private void post(Runnable r) {

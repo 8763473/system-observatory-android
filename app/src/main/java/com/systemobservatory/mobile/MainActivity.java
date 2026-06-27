@@ -1105,8 +1105,8 @@ public final class MainActivity extends Activity {
                                 ? body.substring(0, Math.min(body.length(), 200))
                                 : "是否更新到最新版本？")
                         .setPositiveButton("立即更新", (dialog, which) -> {
-                            updateChecker.startDownload(downloadUrl);
-                            showToast("正在下载更新...");
+                            dialog.dismiss();
+                            updateChecker.startDownload();
                         })
                         .setNegativeButton("跳过此版本", (dialog, which) ->
                                 updateChecker.skipVersion(newVersion))
@@ -1127,19 +1127,21 @@ public final class MainActivity extends Activity {
             }
 
             @Override
+            public void onDownloadStart() {
+                showToast("正在下载更新...");
+            }
+
+            @Override
+            public void onDownloadProgress(int percent) { }
+
+            @Override
             public void onDownloadComplete(File apkFile) {
-                new AlertDialog.Builder(MainActivity.this)
-                        .setTitle("下载完成")
-                        .setMessage("更新包已下载，是否立即安装？")
-                        .setPositiveButton("安装", (dialog, which) ->
-                                updateChecker.installApk(apkFile))
-                        .setNegativeButton("稍后", null)
-                        .show();
+                showToast("下载完成，正在安装...");
             }
 
             @Override
             public void onError(String message) {
-                showToast("更新检测失败: " + message);
+                showToast("更新失败: " + message);
             }
         });
         updateChecker.check();

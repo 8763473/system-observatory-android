@@ -1098,16 +1098,14 @@ public final class MainActivity extends Activity {
     private void checkForUpdates(boolean manualCheck) {
         updateChecker = new UpdateChecker(this, new UpdateChecker.Callback() {
             @Override
-            public void onUpdateAvailable(String newVersion, String body) {
+            public void onUpdateAvailable(String newVersion, String body, String downloadUrl) {
                 new AlertDialog.Builder(MainActivity.this)
                         .setTitle("发现新版本 v" + newVersion)
                         .setMessage(body != null && !body.isEmpty()
                                 ? body.substring(0, Math.min(body.length(), 200))
                                 : "是否更新到最新版本？")
                         .setPositiveButton("立即更新", (dialog, which) -> {
-                            String url = "https://github.com/8763473/system-observatory-android/releases/download/v"
-                                    + newVersion + "/app-debug.apk";
-                            updateChecker.startDownload(url);
+                            updateChecker.startDownload(downloadUrl);
                             showToast("正在下载更新...");
                         })
                         .setNegativeButton("跳过此版本", (dialog, which) ->

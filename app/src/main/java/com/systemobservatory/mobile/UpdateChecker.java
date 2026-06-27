@@ -34,9 +34,10 @@ public final class UpdateChecker {
     private final SharedPreferences prefs;
     private long downloadId = -1;
     private Callback callback;
+    private String latestDownloadUrl;
 
     public interface Callback {
-        void onUpdateAvailable(String newVersion, String body);
+        void onUpdateAvailable(String newVersion, String body, String downloadUrl);
         void onNoUpdate();
         void onDownloadComplete(File apkFile);
         void onError(String message);
@@ -118,7 +119,8 @@ public final class UpdateChecker {
                 String finalUrl = downloadUrl;
                 String finalTag = tagName;
                 String finalBody = body;
-                post(() -> callback.onUpdateAvailable(finalTag, finalBody));
+                latestDownloadUrl = downloadUrl;
+                post(() -> callback.onUpdateAvailable(finalTag, finalBody, finalUrl));
             } catch (Exception e) {
                 Log.w(TAG, "Update check failed: " + e.getMessage());
                 post(() -> callback.onNoUpdate());
@@ -127,6 +129,9 @@ public final class UpdateChecker {
     }
 
     public void startDownload(String downloadUrl) {
+        if (downloadUrl == null || downloadUrl.isEmpty()) {
+            downloadUrl = latestDownloadUrl;
+        }
         File dir = new File(context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), UPDATE_PATH);
         if (!dir.exists()) dir.mkdirs();
         File apkFile = new File(dir, "系统观测台.apk");

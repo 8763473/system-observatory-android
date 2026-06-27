@@ -58,19 +58,19 @@ public final class MainActivity extends Activity {
     private static final long REFRESH_FAST_MS = 3000;
     private static final long REFRESH_IDLE_MS = 30000;
     private static final long HTTP_FALLBACK_INTERVAL_MS = 5000;
-    private static final int PAGE_BACKGROUND = Color.rgb(255, 244, 248);
-    private static final int SURFACE = Color.rgb(255, 251, 253);
-    private static final int SURFACE_TINT = Color.rgb(255, 235, 242);
-    private static final int SURFACE_ACCENT = Color.rgb(255, 218, 230);
-    private static final int PRIMARY = Color.rgb(224, 91, 132);
-    private static final int PRIMARY_SOFT = Color.rgb(250, 181, 204);
-    private static final int PRIMARY_DEEP = Color.rgb(151, 46, 82);
-    private static final int TEXT_PRIMARY = Color.rgb(54, 34, 43);
-    private static final int TEXT_MUTED = Color.rgb(126, 86, 103);
-    private static final int TEXT_SOFT = Color.rgb(164, 113, 135);
-    private static final int DIVIDER = Color.rgb(246, 210, 223);
+    private static final int PAGE_BACKGROUND = Color.rgb(248, 250, 252);
+    private static final int SURFACE = Color.rgb(255, 255, 255);
+    private static final int SURFACE_TINT = Color.rgb(243, 245, 250);
+    private static final int SURFACE_ACCENT = Color.rgb(232, 234, 246);
+    private static final int PRIMARY = Color.rgb(63, 81, 181);
+    private static final int PRIMARY_SOFT = Color.rgb(159, 168, 218);
+    private static final int PRIMARY_DEEP = Color.rgb(48, 63, 159);
+    private static final int TEXT_PRIMARY = Color.rgb(26, 28, 35);
+    private static final int TEXT_MUTED = Color.rgb(90, 95, 105);
+    private static final int TEXT_SOFT = Color.rgb(140, 145, 155);
+    private static final int DIVIDER = Color.rgb(224, 228, 240);
     private static final int WARNING = Color.rgb(191, 111, 0);
-    private static final int SUCCESS = Color.rgb(46, 154, 111);
+    private static final int SUCCESS = Color.rgb(0, 150, 136);
     private static final int AVATAR_REQUEST = 9001;
     private static final int CROP_REQUEST = 9002;
 
@@ -1428,9 +1428,9 @@ public final class MainActivity extends Activity {
         }
 
         private int heatColor(int value, int max) {
-            if (value <= 0) return Color.rgb(252, 229, 237);
+            if (value <= 0) return Color.rgb(237, 240, 250);
             float ratio = Math.min(1f, value / (float) Math.max(1, max));
-            if (ratio < 0.25f) return Color.rgb(252, 197, 216);
+            if (ratio < 0.25f) return Color.rgb(197, 202, 233);
             if (ratio < 0.50f) return PRIMARY_SOFT;
             if (ratio < 0.75f) return PRIMARY;
             return PRIMARY_DEEP;
@@ -1540,7 +1540,7 @@ public final class MainActivity extends Activity {
         }
 
         private int PrimarySoftCopy() {
-            return Color.rgb(250, 181, 204);
+            return Color.rgb(159, 168, 218);
         }
     }
 }
